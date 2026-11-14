@@ -90,26 +90,88 @@ body::before{
   box-shadow:0 6px 22px rgba(2,136,209,0.10),0 2px 6px rgba(0,0,0,0.04);
   position:relative;overflow:hidden;
 }
-/* Layer gambar banner yang berputar */
-.hero-banner-layer{
-  position:absolute;inset:0;
-  background-size:cover;background-position:center;
-  opacity:0;transition:opacity .8s ease;z-index:0;
-  pointer-events:none;
-}
-.hero-banner-layer.active{opacity:1}
-.hero-banner::after{
-  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(2,62,108,0.45) 0%,rgba(1,87,155,0.60) 100%);
-}
 .hero-banner-inner{
   position:relative;z-index:2;padding:18px;
+}
+
+.poster-carousel{
+  position:relative;
+  border-radius:16px;overflow:hidden;
+  border:2px solid var(--border-mid);
+  box-shadow:0 4px 14px rgba(2,136,209,.18);
+  background:linear-gradient(135deg,#E3F2FD,#E0F2F1);
+  aspect-ratio:4/3;
+  min-height:240px;
+  user-select:none;
+}
+.poster-viewport{overflow:hidden;height:100%;border-radius:14px;cursor:grab;position:relative}
+.poster-viewport.dragging{cursor:grabbing}
+.poster-track{
+  display:flex;height:100%;width:100%;
+  transition:transform .55s cubic-bezier(.4,.0,.2,1);
+  will-change:transform;
+}
+.poster-track.no-transition{transition:none}
+.poster-slide{
+  flex:0 0 100%;min-width:100%;height:100%;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  background:linear-gradient(135deg,#E3F2FD,#E0F2F1);
+}
+.poster-slide img{
+  width:100%;height:100%;object-fit:contain;display:block;
+  pointer-events:none;
+}
+.poster-caption{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;
+  padding:22px 14px 8px;
+  background:linear-gradient(0deg,rgba(2,62,108,.62) 0%,rgba(2,62,108,0) 100%);
+  color:#fff;font-size:11px;font-weight:700;letter-spacing:.2px;
+  text-shadow:0 1px 2px rgba(0,0,0,.6);
+  text-align:center;pointer-events:none;
+}
+.poster-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.92);border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);
+  font-size:18px;font-weight:800;color:var(--sky-deep);z-index:4;
+  transition:background .2s,transform .15s;
+}
+.poster-nav:hover{background:#fff;transform:translateY(-50%) scale(1.08)}
+.poster-nav.prev{left:8px}
+.poster-nav.next{right:8px}
+.poster-dots{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  display:flex;gap:6px;z-index:4;
+}
+.poster-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,.55);cursor:pointer;
+  transition:all .25s;border:none;padding:0;
+}
+.poster-dot.active{background:#fff;width:22px;border-radius:5px}
+.poster-download,.poster-zoom{
+  position:absolute;top:8px;width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.92);border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:4;
+  transition:background .2s,transform .15s;
+}
+.poster-download:hover,.poster-zoom:hover{background:#fff;transform:scale(1.08)}
+.poster-download{right:8px}
+.poster-zoom{right:52px}
+.poster-download svg,.poster-zoom svg{width:18px;height:18px;fill:var(--sky-deep)}
+.poster-loading{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:#E1F5FE;color:var(--sky-deep);font-size:12px;font-weight:700;
 }
 .hero-top{
   display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
   gap:16px;align-items:stretch;
 }
-.hero-info-area{display:flex;flex-direction:column;gap:10px;min-width:0;background:rgba(255,255,255,0.92);padding:12px 14px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.hero-info-area{display:flex;flex-direction:column;gap:10px;min-width:0}
 .hero-title-row{text-align:left}
 .hero-subtitle{
   font-family:var(--font-display);
@@ -620,10 +682,8 @@ table.patient-table{width:100%;border-collapse:collapse;font-size:12px;table-lay
   <main class="app-main">
 
     <!-- HERO BANNER -->
-    <section class="hero-banner" onclick="openImageViewer()" title="Klik untuk perbesar gambar">
-      <div class="hero-banner-layer active" id="bannerLayer0"></div>
-      <div class="hero-banner-layer" id="bannerLayer1"></div>
-      <div class="hero-banner-inner" onclick="event.stopPropagation()">
+    <section class="hero-banner">
+      <div class="hero-banner-inner">
       <div class="sync-queue-badge" id="syncQueueBadge"><div class="sq-dot"></div><span id="syncQueueText">0 pending</span></div>
 
       <div class="hero-top">
@@ -642,41 +702,20 @@ table.patient-table{width:100%;border-collapse:collapse;font-size:12px;table-lay
           <div class="hero-marquee"><div class="marquee-track">Selamat datang di Aplikasi HD Malahayati — Cuci tangan 6 langkah, cegah infeksi, jaga kesehatan bersama. 🚿 🧼 💧</div></div>
         </div>
 
-        <!-- HANDWASH INFOGRAFIS -->
-        <div class="handwash-card">
-          <div class="handwash-title">
-            <div class="handwash-num">6</div>
-            <div class="handwash-title-text">
-              <b>LANGKAH</b>
-              <small>mencuci tangan</small>
-            </div>
+        <!-- POSTER CAROUSEL (banner edukasi geser) -->
+        <div class="poster-carousel" id="posterCarousel">
+          <div class="poster-viewport" id="posterViewport">
+            <div class="poster-track" id="posterTrack"></div>
           </div>
-          <div class="handwash-steps">
-            <div class="hw-step yellow">
-              <div class="hw-step-icon"><span class="hw-emoji">🖐️</span></div>
-              <div class="hw-step-text">Telapak<br>Tangan</div>
-            </div>
-            <div class="hw-step">
-              <div class="hw-step-icon"><span class="hw-emoji">🙌</span></div>
-              <div class="hw-step-text">Punggung<br>Tangan</div>
-            </div>
-            <div class="hw-step mint">
-              <div class="hw-step-icon"><span class="hw-emoji">🤝</span></div>
-              <div class="hw-step-text">Sela<br>Jari</div>
-            </div>
-            <div class="hw-step">
-              <div class="hw-step-icon"><span class="hw-emoji">💅</span></div>
-              <div class="hw-step-text">Bagian<br>Kuku</div>
-            </div>
-            <div class="hw-step yellow">
-              <div class="hw-step-icon"><span class="hw-emoji">⛓️</span></div>
-              <div class="hw-step-text">Pergelangan<br>Tangan</div>
-            </div>
-            <div class="hw-step mint">
-              <div class="hw-step-icon"><span class="hw-emoji">👍</span></div>
-              <div class="hw-step-text">Gosok<br>Ibu Jari</div>
-            </div>
-          </div>
+          <button class="poster-nav prev" onclick="posterPrev(event)" title="Sebelumnya" aria-label="Sebelumnya">‹</button>
+          <button class="poster-nav next" onclick="posterNext(event)" title="Berikutnya" aria-label="Berikutnya">›</button>
+          <button class="poster-zoom" onclick="openImageViewer(event)" title="Perbesar / Zoom" aria-label="Perbesar">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM12 10h-2v2H9v-2H7V9h2V7h1v2h2v1z"/></svg>
+          </button>
+          <button class="poster-download" onclick="downloadCurrentPoster(event)" title="Download Poster" aria-label="Download">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          </button>
+          <div class="poster-dots" id="posterDots"></div>
         </div>
       </div>
       </div><!-- /hero-banner-inner -->
@@ -957,36 +996,131 @@ function updateClock() {
 }
 
 /* =========================================================
-   HEADER ROTATOR (banner gambar berganti tiap 3 detik, crossfade 2 layer)
+   POSTER CAROUSEL (banner edukasi geser kiri->kanan tiap 3 detik + swipe manual)
    ========================================================= */
+var posterIndex = 0;
+var posterTimer = null;
+var posterDragState = null; /* { startX, deltaX, width, active } */
+
 function initHeaderRotator() {
-  var l0 = document.getElementById('bannerLayer0');
-  var l1 = document.getElementById('bannerLayer1');
-  if (!l0 || !l1 || headerImages.length === 0) return;
-  /* Set gambar awal ke layer 0 */
-  l0.style.backgroundImage = "url('" + headerImages[0] + "')";
-  activeLayer = 0;
-  setInterval(function() {
-    currentHeaderImg = (currentHeaderImg + 1) % headerImages.length;
-    var nextLayer = activeLayer === 0 ? l1 : l0;
-    var prevLayer = activeLayer === 0 ? l0 : l1;
-    /* Pre-load gambar berikutnya, lalu crossfade */
-    var img = new Image();
-    img.onload = function() {
-      nextLayer.style.backgroundImage = "url('" + headerImages[currentHeaderImg] + "')";
-      nextLayer.classList.add('active');
-      prevLayer.classList.remove('active');
-      activeLayer = activeLayer === 0 ? 1 : 0;
-    };
-    img.onerror = function() {
-      /* Jika gambar gagal dimuat (mis. file tidak ada), tetap lanjut rotasi */
-      nextLayer.style.backgroundImage = "url('" + headerImages[currentHeaderImg] + "')";
-      nextLayer.classList.add('active');
-      prevLayer.classList.remove('active');
-      activeLayer = activeLayer === 0 ? 1 : 0;
-    };
-    img.src = headerImages[currentHeaderImg];
-  }, 3000); /* Ganti setiap 3 detik */
+  var track = document.getElementById('posterTrack');
+  var dotsWrap = document.getElementById('posterDots');
+  var viewport = document.getElementById('posterViewport');
+  if (!track || !dotsWrap || !viewport || headerImages.length === 0) return;
+
+  /* Build slides + dots */
+  track.innerHTML = '';
+  dotsWrap.innerHTML = '';
+  headerImages.forEach(function(src, i) {
+    var slide = document.createElement('div');
+    slide.className = 'poster-slide';
+    var img = document.createElement('img');
+    img.src = src; img.alt = 'Poster edukasi ' + (i + 1); img.loading = 'lazy';
+    img.onerror = function() { img.style.display = 'none'; slide.style.background = 'linear-gradient(135deg,#81D4FA,#01579B)'; };
+    slide.appendChild(img);
+    var cap = document.createElement('div');
+    cap.className = 'poster-caption';
+    cap.textContent = src.replace(/\.[^.]+$/, '').replace(/_/g, ' ').replace(/\b\w/g, function(c){return c.toUpperCase();});
+    slide.appendChild(cap);
+    track.appendChild(slide);
+
+    var dot = document.createElement('button');
+    dot.className = 'poster-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Poster ' + (i + 1));
+    dot.onclick = function(e) { e.stopPropagation(); goPoster(i); };
+    dotsWrap.appendChild(dot);
+  });
+
+  posterIndex = 0;
+  updatePosterTrack();
+
+  /* Auto-advance tiap 3 detik (kiri -> kanan) */
+  startPosterAuto();
+
+  /* Pause on hover */
+  viewport.addEventListener('mouseenter', stopPosterAuto);
+  viewport.addEventListener('mouseleave', startPosterAuto);
+
+  /* Swipe / drag manual (mouse + touch) */
+  viewport.addEventListener('mousedown', onPosterDragStart);
+  window.addEventListener('mousemove', onPosterDragMove);
+  window.addEventListener('mouseup', onPosterDragEnd);
+  viewport.addEventListener('touchstart', onPosterDragStart, {passive:true});
+  viewport.addEventListener('touchmove', onPosterDragMove, {passive:true});
+  viewport.addEventListener('touchend', onPosterDragEnd);
+  viewport.addEventListener('touchcancel', onPosterDragEnd);
+  /* Cegah drag gambar native */
+  viewport.addEventListener('dragstart', function(e){ e.preventDefault(); });
+}
+
+function updatePosterTrack() {
+  var track = document.getElementById('posterTrack');
+  if (!track) return;
+  track.style.transform = 'translateX(' + (-posterIndex * 100) + '%)';
+  var dots = document.querySelectorAll('#posterDots .poster-dot');
+  dots.forEach(function(d, i){ d.classList.toggle('active', i === posterIndex); });
+  currentHeaderImg = posterIndex;
+}
+function startPosterAuto() {
+  stopPosterAuto();
+  if (headerImages.length <= 1) return;
+  posterTimer = setInterval(function() {
+    posterIndex = (posterIndex + 1) % headerImages.length; /* maju ke kanan */
+    updatePosterTrack();
+  }, 3000);
+}
+function stopPosterAuto() { if (posterTimer) { clearInterval(posterTimer); posterTimer = null; } }
+function goPoster(i) {
+  if (headerImages.length === 0) return;
+  posterIndex = ((i % headerImages.length) + headerImages.length) % headerImages.length;
+  updatePosterTrack();
+  startPosterAuto(); /* reset timer */
+}
+function posterPrev(e) { if(e) e.stopPropagation(); goPoster(posterIndex - 1); }
+function posterNext(e) { if(e) e.stopPropagation(); goPoster(posterIndex + 1); }
+
+/* Drag/swipe handler */
+function onPosterDragStart(e) {
+  var viewport = document.getElementById('posterViewport');
+  if (!viewport) return;
+  var x = (e.touches ? e.touches[0].clientX : e.clientX);
+  posterDragState = { startX: x, deltaX: 0, width: viewport.offsetWidth, active: true };
+  viewport.classList.add('dragging');
+  document.getElementById('posterTrack').classList.add('no-transition');
+  stopPosterAuto();
+}
+function onPosterDragMove(e) {
+  if (!posterDragState || !posterDragState.active) return;
+  var x = (e.touches ? e.touches[0].clientX : e.clientX);
+  posterDragState.deltaX = x - posterDragState.startX;
+  var pct = (posterDragState.deltaX / posterDragState.width) * 100;
+  document.getElementById('posterTrack').style.transform =
+    'translateX(' + (-posterIndex * 100 + pct) + '%)';
+}
+function onPosterDragEnd() {
+  if (!posterDragState) return;
+  var track = document.getElementById('posterTrack');
+  track.classList.remove('no-transition');
+  var viewport = document.getElementById('posterViewport');
+  if (viewport) viewport.classList.remove('dragging');
+  var threshold = posterDragState.width * 0.18;
+  if (posterDragState.deltaX < -threshold) { posterNext(); }
+  else if (posterDragState.deltaX > threshold) { posterPrev(); }
+  else { updatePosterTrack(); }
+  posterDragState = null;
+  startPosterAuto();
+}
+
+/* Download poster yang sedang tampil */
+function downloadCurrentPoster(e) {
+  if (e) e.stopPropagation();
+  if (headerImages.length === 0) return;
+  var src = headerImages[posterIndex % headerImages.length];
+  var filename = src.split('/').pop().split('?')[0];
+  var a = document.createElement('a');
+  a.href = src; a.download = filename; a.target = '_blank';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('Mengunduh ' + filename + '...');
 }
 
 /* =========================================================
