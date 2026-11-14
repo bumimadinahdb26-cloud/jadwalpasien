@@ -119,8 +119,36 @@ body::before{
   .search-box{min-width:0}
   #search{padding:9px 10px;font-size:14px}
   .mic-btn,.search-go{width:38px;height:38px;flex-shrink:0}
-  /* Tabel jadwal kompak */
+  /* Tabel jadwal kompak: sembunyikan kolom Ruang & Aksi, baris bisa di-tap */
   .results-card{border-radius:16px}
+  .patient-table th.col-ruang, .patient-table td.cell-ruang,
+  .patient-table th.col-aksi, .patient-table td.cell-aksi{display:none}
+  .patient-table tbody tr{cursor:pointer}
+  .patient-table tbody tr:active{background:rgba(2,136,209,.08)}
+  /* Layout kartu mobile: tiap baris jadi kartu vertikal */
+  .results-card .hasil-wrap,
+  #hasil{padding:8px}
+  /* Hindari konten tertutup tombol floating (48px + 10px margin = 58px) */
+  .app-main{padding-right:0}
+  .results-card{margin-right:58px}
+  .search-row{margin-right:58px}
+  .patient-table{font-size:11px;table-layout:fixed;width:100%}
+  .patient-table thead{display:none}
+  .patient-table, .patient-table tbody, .patient-table tr, .patient-table td{display:block;width:100%}
+  .patient-table tbody tr{
+    background:#fff;border:1.5px solid var(--sky-light);border-radius:12px;
+    margin-bottom:8px;padding:10px;box-shadow:0 2px 6px rgba(0,0,0,.05);
+  }
+  .patient-table tbody td{padding:5px 0;border:none;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .patient-table tbody td.cell-nowrap{white-space:normal}
+  .patient-table .col-nama{font-size:14px;font-weight:800;color:var(--sky-deep);border-bottom:1px solid var(--sky-light);padding-bottom:6px;margin-bottom:4px}
+  .patient-table .col-nama .col-mr{font-size:11px;font-weight:700;color:var(--text-muted)}
+  .patient-table tbody td::before{
+    content:attr(data-label);font-size:10px;font-weight:700;color:var(--sky-dark);
+    text-transform:uppercase;letter-spacing:.3px;flex-shrink:0;min-width:60px;
+  }
+  .patient-table tbody td.col-nama::before{display:none}
+  .patient-table .badge-shift{font-size:11px;padding:2px 8px}
 }
 
 /* ===== HERO BANNER ===== */
@@ -536,6 +564,47 @@ table.patient-table{width:100%;border-collapse:collapse;font-size:12px;table-lay
 .aside-wa.wa-only{background:linear-gradient(135deg,#25D366,#128C7E);animation:waPulse 2.5s infinite}
 @keyframes waPulse{0%{box-shadow:0 0 0 0 rgba(37,211,102,.5)}70%{box-shadow:0 0 0 8px rgba(37,211,102,0)}100%{box-shadow:0 0 0 0 rgba(37,211,102,0)}}
 
+/* ===== FLOATING SOCIAL (mengambang, bentuk ikuti icon) ===== */
+.social-fab{
+  position:fixed;right:16px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:12px;z-index:1200;
+}
+.social-fab .fab{
+  width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+  text-decoration:none;border:none;cursor:pointer;color:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .18s,box-shadow .18s;
+  position:relative;overflow:hidden;
+}
+.social-fab .fab:hover{transform:translateX(-3px) scale(1.07);box-shadow:0 6px 18px rgba(0,0,0,.32)}
+.social-fab .fab svg{width:24px;height:24px;fill:#fff;flex-shrink:0}
+/* Bentuk sesuai ikon:
+   - YouTube, Instagram, Threads, Catatan: kotak (rounded 12px) */
+.social-fab .fab.shape-square{border-radius:13px}
+/* - TikTok & WhatsApp: bulat */
+.social-fab .fab.shape-circle{border-radius:50%}
+/* Warna merek */
+.social-fab .fab.yt{background:linear-gradient(135deg,#FF0000,#CC0000)}
+.social-fab .fab.tt{background:linear-gradient(135deg,#010101,#1a1a2e)}
+.social-fab .fab.ig{background:var(--ig-grad)}
+.social-fab .fab.catatan{background:linear-gradient(135deg,var(--sky-main),var(--sky-dark))}
+.social-fab .fab.wa{background:linear-gradient(135deg,#25D366,#128C7E);animation:waPulse 2.5s infinite}
+/* Tooltip label */
+.social-fab .fab::after{
+  content:attr(data-label);position:absolute;right:58px;top:50%;transform:translateY(-50%);
+  background:rgba(2,62,108,.92);color:#fff;font-size:11px;font-weight:700;
+  padding:5px 10px;border-radius:8px;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .18s;
+}
+.social-fab .fab:hover::after{opacity:1}
+/* Mobile: pindah ke kanan bawah, lebih kecil */
+@media(max-width:680px){
+  .social-fab{right:10px;bottom:14px;top:auto;transform:none;flex-direction:column;gap:8px}
+  .social-fab .fab{width:42px;height:42px}
+  .social-fab .fab svg{width:20px;height:20px}
+  .social-fab .fab::after{display:none}
+}
+
 .footer-credit{
   text-align:center;font-size:10px;color:var(--text-soft);font-weight:700;
   padding:6px;margin-top:2px;
@@ -685,6 +754,9 @@ table.patient-table{width:100%;border-collapse:collapse;font-size:12px;table-lay
 .view-label{font-size:12px;color:var(--sky-dark);display:flex;align-items:center;gap:8px;font-weight:700}
 .view-label-icon{width:26px;height:26px;background:linear-gradient(135deg,var(--sky-light),var(--leaf-light));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px}
 .view-value{font-size:13px;font-weight:800;color:var(--sky-deep);max-width:60%;text-align:right;word-break:break-word}
+.view-actions-row{display:flex;flex-wrap:wrap;gap:8px;padding:14px;border-top:2px solid var(--sky-light);background:linear-gradient(180deg,#F8FCFF,#F1F8FE)}
+.view-actions-row .action-btn{flex:1 1 calc(50% - 4px);min-width:120px;height:42px;border-radius:10px;font-size:12px}
+.view-actions-row .action-btn svg{width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:4px;fill:#fff}
 
 .history-header-section{padding:16px;border-bottom:2px solid var(--sky-light)}
 .add-new-record-btn{
@@ -844,24 +916,7 @@ table.patient-table{width:100%;border-collapse:collapse;font-size:12px;table-lay
     </a>
 
     <!-- SOSMED -->
-    <!-- SOSMED IKON GRID -->
-    <div class="social-vertical">
-      <a href="https://youtu.be/vSzlzMpLeco?si=ZhgNoC5Nc9eLdbMS" target="_blank" class="social-btn yt" title="YouTube HD Malahayati">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-      </a>
-      <a href="https://www.tiktok.com/@malahayatirssa" target="_blank" class="social-btn tt" title="TikTok HD Malahayati">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
-      </a>
-      <a href="https://www.instagram.com/dialisis.rssa?igsh=OGVtYndmMWlzdmdv" target="_blank" class="social-btn ig" title="Instagram HD Malahayati">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
-      </a>
-      <button class="aside-wa" onclick="openHistoryModal()" title="Buku Catatan HD">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-2 14H7v-2h10zm0-4H7v-2h10zm0-4H7V7h10z"/></svg>
-      </button>
-      <button class="aside-wa wa-only" onclick="toggleWA()" title="WhatsApp Perawat HD">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.075-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.607.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.611-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.371-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-      </button>
-    </div>
+    <!-- SOSMED sekarang mengambang (lihat .social-fab di akhir body) -->
 
     <div class="footer-credit">Created by Iman Waluyo</div>
 
@@ -966,6 +1021,7 @@ table.patient-table{width:100%;border-collapse:collapse;font-size:12px;table-lay
     <div class="view-card">
       <div class="view-card-header"><div class="view-patient-name" id="viewName">-</div><div class="view-patient-mr" id="viewMr">-</div></div>
       <div class="view-card-body" id="viewBody"></div>
+      <div class="view-actions-row" id="viewActionsRow"></div>
     </div>
   </div>
 </div>
@@ -995,6 +1051,25 @@ table.patient-table{width:100%;border-collapse:collapse;font-size:12px;table-lay
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- SOSMED MENGAMBANG (floating) - bentuk ikuti ikon: kotak/bulat -->
+<div class="social-fab">
+  <a href="https://youtu.be/vSzlzMpLeco?si=ZhgNoC5Nc9eLdbMS" target="_blank" class="fab yt shape-square" data-label="YouTube HD Malahayati" title="YouTube">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+  </a>
+  <a href="https://www.tiktok.com/@malahayatirssa" target="_blank" class="fab tt shape-circle" data-label="TikTok HD Malahayati" title="TikTok">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+  </a>
+  <a href="https://www.instagram.com/dialisis.rssa?igsh=OGVtYndmMWlzdmdv" target="_blank" class="fab ig shape-square" data-label="Instagram HD Malahayati" title="Instagram">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+  </a>
+  <button class="fab catatan shape-square" onclick="openHistoryModal()" data-label="Buku Catatan HD" title="Buku Catatan">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-2 14H7v-2h10zm0-4H7v-2h10zm0-4H7V7h10z"/></svg>
+  </button>
+  <button class="fab wa shape-circle" onclick="toggleWA()" data-label="WhatsApp Perawat HD" title="WhatsApp">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.075-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.607.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.611-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.371-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+  </button>
+</div>
 
 <script>
 /* =========================================================
@@ -1462,7 +1537,7 @@ function cari() {
 
   var now = new Date();
   var html = '<table class="patient-table"><thead><tr>' +
-    '<th>Nama / MR</th><th>Ruang</th><th>Hari</th><th>Tanggal</th><th>Bed</th><th>Tim</th><th>Shift / Jam</th><th>Aksi</th>' +
+    '<th>Nama / MR</th><th class="col-ruang">Ruang</th><th>Hari</th><th>Tanggal</th><th>Bed</th><th>Tim</th><th>Shift / Jam</th><th class="col-aksi">Aksi</th>' +
     '</tr></thead><tbody>';
 
   matches.forEach(function(r) {
@@ -1494,21 +1569,21 @@ function cari() {
       countdownHtml = '<div class="countdown-pill" style="background:var(--leaf-light);color:var(--leaf-dark)">✓ Selesai</div>';
     }
 
-    html += '<tr class="' + (selesai ? 'row-selesai ' : '') + (menggunakanCache ? 'row-from-cache' : '') + '">' +
+    html += '<tr class="' + (selesai ? 'row-selesai ' : '') + (menggunakanCache ? 'row-from-cache' : '') + '" onclick="openViewModal(JSON.parse(decodeURIComponent(\'' + pDataStr + '\')))" title="Klik untuk lihat detail & aksi">' +
       '<td class="col-nama">' + escHtml(r[1] || '-') + '<div class="col-mr">MR: <b>XX' + String(r[0]||'').slice(-4) + '</b></div></td>' +
-      '<td class="cell-strong cell-nowrap">' + escHtml(r[2] || '-') + '</td>' +
-      '<td class="cell-nowrap">' + escHtml(r[3] || '-') + '</td>' +
-      '<td class="cell-nowrap">' + escHtml(r[4] || '-') + '</td>' +
-      '<td class="cell-nowrap">' + escHtml(r[5] || '-') + '</td>' +
-      '<td class="cell-nowrap">' + escHtml(r[6] || '-') + '</td>' +
-      '<td style="text-align:center;white-space:nowrap"><span class="badge-shift">Shift ' + escHtml(r[7] || '-') + '</span><div style="font-size:11px;font-weight:700;margin-top:4px;color:var(--sky-deep)">' + escHtml(r[8] || '-') + '</div>' + countdownHtml + '</td>' +
-      '<td><div class="action-row">' +
-        '<button class="action-btn view-btn" onclick="openViewModal(decodeURIComponent(\'' + pDataStr + '\'))">View</button>' +
-        '<button class="action-btn record-btn" onclick="openRecordModal(decodeURIComponent(\'' + pDataStr + '\'))">Pencatatan</button>' +
-        '<a href="https://wa.me/?text=' + shareEncoded + '" target="_blank" class="action-btn wa-share-btn">WA</a>' +
-        '<a href="https://t.me/share/url?url=&text=' + shareEncoded + '" target="_blank" class="action-btn tg-share-btn">TG</a>' +
-        '<a href="sms:?body=' + shareEncoded + '" class="action-btn sms-btn">SMS</a>' +
-        '<button class="action-btn pdf-btn" onclick="generatePDF(decodeURIComponent(\'' + pDataStr + '\'))">PDF</button>' +
+      '<td class="cell-strong cell-nowrap cell-ruang" data-label="Ruang">' + escHtml(r[2] || '-') + '</td>' +
+      '<td class="cell-nowrap" data-label="Hari">' + escHtml(r[3] || '-') + '</td>' +
+      '<td class="cell-nowrap" data-label="Tanggal">' + escHtml(r[4] || '-') + '</td>' +
+      '<td class="cell-nowrap" data-label="Bed">' + escHtml(r[5] || '-') + '</td>' +
+      '<td class="cell-nowrap" data-label="Tim">' + escHtml(r[6] || '-') + '</td>' +
+      '<td data-label="Shift / Jam" style="text-align:center;white-space:nowrap"><span class="badge-shift">Shift ' + escHtml(r[7] || '-') + '</span><div style="font-size:11px;font-weight:700;margin-top:4px;color:var(--sky-deep)">' + escHtml(r[8] || '-') + '</div>' + countdownHtml + '</td>' +
+      '<td class="cell-aksi" data-label="Aksi"><div class="action-row">' +
+        '<button class="action-btn view-btn" onclick="event.stopPropagation(); openViewModal(decodeURIComponent(\'' + pDataStr + '\'))">View</button>' +
+        '<button class="action-btn record-btn" onclick="event.stopPropagation(); openRecordModal(decodeURIComponent(\'' + pDataStr + '\'))">Pencatatan</button>' +
+        '<a href="https://wa.me/?text=' + shareEncoded + '" target="_blank" class="action-btn wa-share-btn" onclick="event.stopPropagation()">WA</a>' +
+        '<a href="https://t.me/share/url?url=&text=' + shareEncoded + '" target="_blank" class="action-btn tg-share-btn" onclick="event.stopPropagation()">TG</a>' +
+        '<a href="sms:?body=' + shareEncoded + '" class="action-btn sms-btn" onclick="event.stopPropagation()">SMS</a>' +
+        '<button class="action-btn pdf-btn" onclick="event.stopPropagation(); generatePDF(decodeURIComponent(\'' + pDataStr + '\'))">PDF</button>' +
       '</div></td>' +
       '</tr>';
   });
@@ -1577,6 +1652,23 @@ function openViewModal(pData) {
   }
 
   document.getElementById('viewBody').innerHTML = html;
+
+  /* Tombol aksi di dalam View modal (Pencatatan / WA / Telegram / SMS / PDF) */
+  var shareText = '*JADWAL PASIEN HD*\n====================\nNama: ' + (pData.nama||'-') +
+    '\nMR: XX' + String(pData.mr||'').slice(-4) + '\nRuang: ' + (pData.ruang||'-') +
+    '\nHari: ' + (pData.hari||'-') + '\nTanggal: ' + (pData.tanggal||'-') +
+    '\nBed: ' + (pData.bed||'-') + '\nTim: ' + (pData.tim||'-') +
+    '\nShift: ' + (pData.shift||'-') + '\nJam: ' + (pData.jam||'-') +
+    '\n====================\n_Info Jadwal HD Malahayati_';
+  var shareEnc = encodeURIComponent(shareText);
+  var pDataStr = encodeURIComponent(JSON.stringify(pData));
+  document.getElementById('viewActionsRow').innerHTML =
+    '<button class="action-btn record-btn" onclick="openRecordModal(JSON.parse(decodeURIComponent(\'' + pDataStr + '\'))); closeViewModal();">📝 Pencatatan</button>' +
+    '<a href="https://wa.me/?text=' + shareEnc + '" target="_blank" class="action-btn wa-share-btn">💬 WhatsApp</a>' +
+    '<a href="https://t.me/share/url?url=&text=' + shareEnc + '" target="_blank" class="action-btn tg-share-btn">✈️ Telegram</a>' +
+    '<a href="sms:?body=' + shareEnc + '" class="action-btn sms-btn">📱 SMS</a>' +
+    '<button class="action-btn pdf-btn" onclick="generatePDF(JSON.parse(decodeURIComponent(\'' + pDataStr + '\')));">📄 PDF</button>';
+
   document.getElementById('modalView').classList.add('show');
 }
 function closeViewModal() { document.getElementById('modalView').classList.remove('show'); currentViewData = null; }
@@ -1815,7 +1907,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') { closeViewModal(); closeRecordModal(); closeHistoryModal(); closeProfileModal(); closeImageViewer(); if (waPanelOpen) toggleWA(); }
 });
 document.addEventListener('click', function(e) {
-  if (waPanelOpen) { var p = document.getElementById('waPanel'); if (!p.contains(e.target) && !e.target.closest('.aside-wa')) toggleWA(); }
+  if (waPanelOpen) { var p = document.getElementById('waPanel'); if (!p.contains(e.target) && !e.target.closest('.fab.wa') && !e.target.closest('.aside-wa')) toggleWA(); }
 });
 </script>
 
